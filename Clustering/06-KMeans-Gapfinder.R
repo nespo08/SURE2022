@@ -65,3 +65,45 @@ clean_gapminder %>%
   ggthemes::scale_color_colorblind() +
   theme_bw() +
   theme(legend.position = "bottom")
+
+
+# K-means++ ---------------------------------------------------------------
+
+library(flexclust)
+init_kmeanspp <- 
+  kcca(dplyr::select(clean_gapminder,
+                     std_log_gdp, 
+                     std_life_exp),
+       k = 3, control = list(initcent = "kmeanspp"))
+
+clean_gapminder %>%
+  mutate(country_clusters = 
+           as.factor(init_kmeanspp@cluster)) %>%
+  ggplot(aes(x = log_gdp, y = life_expectancy,
+             color = country_clusters)) +
+  geom_point() + 
+  ggthemes::scale_color_colorblind() +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+
+# How to choose k number of clusters? Use an elbow plot -------------------------------------
+
+# Initialize number of clusters to search over
+n_clusters_search <- 2:12
+tibble(total_wss = 
+         # Compute total WSS for each number by looping with sapply
+         sapply(n_clusters_search,
+                function(k) {
+                  kmeans_results <- kmeans(dplyr::select(clean_gapminder,
+                                                         std_log_gdp,
+                                                         std_life_exp),
+                                           centers = k, nstart = 30)
+                  # Return the total WSS for choice of k
+                  return(kmeans_results$tot.withinss)
+                })) %>%
+  mutate(k = n_clusters_search) %>%
+  ggplot(aes(x = k, y = total_wss)) +
+  geom_line() + geom_point() +
+  labs(x = "Number of clusters K", y = "Total WSS") +
+  theme_bw()
