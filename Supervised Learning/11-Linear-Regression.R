@@ -37,6 +37,21 @@ init_lm <- lm(life_expectancy ~ log(gdp),
               data = clean_gapminder) # Life Exp. as a function of log(GDP)
 summary(init_lm)
 
+no_init_lm <- lm(life_expectancy ~ 0 + log(gdp),
+              data = clean_gapminder) # Life Exp. as a function of log(GDP) (no intercept)
+
+# Plot with no intercept (we do not shift the data)
+gdp_plot <- clean_gapminder %>%
+  ggplot(aes(x = log_gdp,
+             y = life_expectancy)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm",
+              formula = "y ~ 0 + x") +
+  theme_bw() +
+  labs(x = "log(GDP)",
+       y = "Life Expectancy") 
+gdp_plot
+
 # Find correlation, which matches the Multiple R^2
 with(clean_gapminder, cor(log_gdp, life_expectancy))
 
@@ -114,3 +129,12 @@ clean_gapminder %>%
              color = "darkred") +
   geom_smooth(se = FALSE) + # Plot the residual mean
   theme_bw()
+
+
+# Multiple regression -----------------------------------------------------
+
+multi_lm <- lm(life_expectancy ~ log_gdp + fertility,
+               data = clean_gapminder)
+
+summary(multi_lm) # Ex: for every one unit increase, log_gdp inc. by 0.8347, but fertility is UNCHANGED
+
