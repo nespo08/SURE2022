@@ -63,8 +63,8 @@ nba_data_2022 %>%
              color = position)) +
   geom_point(alpha = 0.5) +
   theme_bw() +
-  labs(x = "Minutes Per Game", 
-       y = "Predicted FG%")
+  labs(x = "FG%", 
+       y = "Predicted MPG")
 
 # Group positions into position groups and refit the model
 nba_data_2022 <- nba_data_2022 %>%
@@ -83,8 +83,8 @@ nba_data_2022 %>%
              color = position_group)) +
   geom_point(alpha = 0.5) +
   theme_bw() +
-  labs(x = "Minutes Per Game", 
-       y = "Predicted FG%")
+  labs(x = "FG%", 
+       y = "Predicted MPG")
 
 
 # Visualize interactions
@@ -97,7 +97,7 @@ nba_data_2022 %>%
   theme_bw() +
   facet_wrap(~ position, ncol = 3) +
   labs(x = "FG%", 
-       y = "Predicted minutes / game") +
+       y = "Predicted MPG") +
   geom_smooth(aes(y = min_per_game),
               method = "lm") 
 
@@ -115,7 +115,7 @@ nba_data_2022 %>%
   theme_bw() +
   facet_wrap(~ position, ncol = 3) +
   labs(x = "FG%", 
-       y = "Predicted minutes / game") +
+       y = "Predicted MPG") +
   geom_smooth(aes(y = min_per_game),
               method = "lm")
 
