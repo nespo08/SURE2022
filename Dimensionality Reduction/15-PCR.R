@@ -16,7 +16,7 @@ nfl_pcr_fit <- pcr(score_diff ~ ., ncomp = 2, scale = TRUE, data = nfl_model_dat
 summary(nfl_pcr_fit)
 
 
-# To perform PCR, we need to tune the number of principal componen --------
+# To perform PCR, we need to tune the number of principal components --------
 
 set.seed(2013)
 library(caret)
@@ -30,3 +30,31 @@ cv_model_pcr <- train(
   tuneLength = ncol(nfl_model_data) - 1)
 
 ggplot(cv_model_pcr) + theme_bw()
+
+
+#  Perform PLS as supervised dim. reduction -------------------------------
+
+set.seed(2013)
+cv_model_pls <- train(
+  score_diff ~ ., 
+  data = nfl_model_data, 
+  method = "pls",
+  trControl = 
+    trainControl(method = "cv", number = 10,
+                 selectionFunction = "oneSE"), 
+  preProcess = c("center", "scale"),
+  tuneLength = ncol(nfl_model_data) - 1)
+
+ggplot(cv_model_pls) + theme_bw() 
+
+
+# Variable importance measures --------------------------------------------
+
+library(vip)
+vip(cv_model_pls, num_features = 10,
+    method = "model") + # All these variables are strongly correlated w/ each other
+  theme_bw()
+
+# PDPs display the change in the average predicted response as the predictor varies over their marginal distribution
+library(pdp)
+partial(cv_model_pls, "offense_total_epa_pass", plot = TRUE) # How does resp. change as we add variables
