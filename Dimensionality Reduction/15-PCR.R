@@ -9,6 +9,8 @@ nfl_model_data <- read_rds("Data/nfl_model_data.rds")
 # Or as a CSV: nfl_model_data <- read_csv("Data/nfl_model_data.csv")
 
 
+
+
 # Fit PCR -----------------------------------------------------------------
 
 library(pls)
