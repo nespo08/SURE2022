@@ -90,3 +90,41 @@ nfl_passing_plays <-
          receiver_name_id = paste0(receiver_player_name, ":", receiver_player_id))
 
 
+# Fit mixed / multilevel models -------------------------------------------
+
+library(lme4)
+passing_lmer <- lmer(epa ~ shotgun + air_yards + (1|passer_name_id) + (1|receiver_name_id),
+                     data = nfl_passing_plays)
+
+summary(passing_lmer)
+
+# Intraclass correlation (ICC) : closer to 0 means responses are more independent, the multilevel model
+# structure is not as relevant
+
+# Closer to 1 means repeated observations provide no new information, multilevel group structure
+# is important
+
+# Also known as variance correlation coefficient
+
+VarCorr(passing_lmer) %>% 
+  as_tibble() %>% 
+  mutate(icc = vcov / sum(vcov)) %>% 
+  dplyr::select(grp, icc)
+
+library(merTools)
+player_effects <- REsim(passing_lmer)
+plotREsim(player_effects)
+
+player_effects %>%
+  as_tibble() %>%
+  group_by(groupFctr) %>%
+  arrange(desc(mean)) %>%
+  slice(1:16, (n() - 15):n()) %>%
+  ggplot(aes(x = reorder(groupID, mean))) +
+  geom_point(aes(y = mean)) +
+  geom_errorbar(aes(ymin = mean - 2*sd,
+                 ymax = mean + 2*sd)) +
+  coord_flip() +
+  facet_wrap(~groupFctr, ncol = 1, scales = "free_y") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+  theme_bw()
